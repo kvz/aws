@@ -2,6 +2,7 @@
 #
 # Copyright 2007-2010 Timothy Kay
 # http://timkay.com/aws/
+# https://github.com/kvz/aws/
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -740,10 +741,10 @@ $r53_version = "2012-02-29";
 $isUnix = guess_is_unix();
 $home = get_home_directory();
 
-# Figure out $cmd.  If the program is run as other than "aws", then $0 contains
-# the command.  This way, you can link aws to the command names (with or without
-# ec2 or s3 prefix) and not have to type "aws".
-unshift @ARGV, $1 if $0 =~ /^(?:.*[\\\/])?(?:(?:ec2|pa|s3|sqs|sdb)-?)?(.+?)(?:\..+)?$/ && $1 !~ /^l?aws/;
+# Figure out $cmd.  If the program is run as other than "timkays_aws", then $0 contains
+# the command.  This way, you can link timkays_aws to the command names (with or without
+# ec2 or s3 prefix) and not have to type "timkays_aws".
+unshift @ARGV, $1 if $0 =~ /^(?:.*[\\\/])?(?:(?:ec2|pa|s3|sqs|sdb)-?)?(.+?)(?:\..+)?$/ && $1 !~ /^l?timkays_aws/;
 
 
 # parse meta-parameters, leaving parameters in @argv
@@ -878,7 +879,7 @@ END {close STDOUT}
 $s3host ||= $ENV{S3_URL} || "s3.amazonaws.com";
 
 
-print STDERR "aws version: v$program_version  (ec2: $ec2_version, sqs: $sqs_version, elb: $elb_version, sdb: $sdb_version, iam: $iam_version)\n" if $v;
+print STDERR "timkays_aws version: v$program_version  (ec2: $ec2_version, sqs: $sqs_version, elb: $elb_version, sdb: $sdb_version, iam: $iam_version)\n" if $v;
 
 $insecsign = "--insecure" if $insecure || $insecure_signing;
 $insecureaws = "--insecure" if $insecureaws || $insecure_aws;
@@ -1066,7 +1067,7 @@ if (!-e "$home/.awsrc" || $sanity_check)
 	($d, $mon, $y, $h, $m, $s) = $aws =~ /^Date: ..., (..) (...) (....) (..):(..):(..) GMT\r?$/m;
 	if ($d)
 	{
-	    warn "sanity-check: Your host SSL certificates are not working for curl.exe.  Try using --insecure-aws (e.g., aws --insecure-aws ls)\n";
+	    warn "sanity-check: Your host SSL certificates are not working for curl.exe.  Try using --insecure-aws (e.g., timkays_aws --insecure-aws ls)\n";
 	}
 	else
 	{
@@ -1074,7 +1075,7 @@ if (!-e "$home/.awsrc" || $sanity_check)
 	    ($d, $mon, $y, $h, $m, $s) = $aws =~ /^Date: ..., (..) (...) (....) (..):(..):(..) GMT\r?$/m;
 	    if ($d)
 	    {
-		die "sanity-check:  Your curl doesn't seem to support SSL.  Try using --http (e.g., aws --http ls)\n";
+		die "sanity-check:  Your curl doesn't seem to support SSL.  Try using --http (e.g., timkays_aws --http ls)\n";
 	    }
 	    else
 	    {
@@ -1113,7 +1114,7 @@ use Digest::MD5 qw(md5 md5_hex);
 
 if ($install)
 {
-    die "Usage: .../aws --install\n" if $install && @argv;
+    die "Usage: .../timkays_aws --install\n" if $install && @argv;
 
     if (-w "/usr/bin")
     {
@@ -1123,15 +1124,15 @@ if ($install)
 
 	if ($dir !~ /^\/usr\/bin$/)
 	{
-	    print STDERR "copying aws to /usr/bin/\n";
-	    my $aws = load_file($0) or die "installation failed (can't load script)\n";
-	    if (-e "/usr/bin/aws")
+	    print STDERR "copying timkays_aws to /usr/bin/\n";
+	    my $timkays_aws = load_file($0) or die "installation failed (can't load script)\n";
+	    if (-e "/usr/bin/timkays_aws")
 	    {
-		unlink "/usr/bin/aws" or die "can't unlink old /usr/bin/aws\n";
+		unlink "/usr/bin/timkays_aws" or die "can't unlink old /usr/bin/timkays_aws\n";
 	    }
-	    save_file("/usr/bin/aws", $aws);
-	    die "installation failed (can't copy script)\n" unless load_file("/usr/bin/aws") eq $aws;
-	    chmod 0555, "/usr/bin/aws";
+	    save_file("/usr/bin/timkays_aws", $timkays_aws);
+	    die "installation failed (can't copy script)\n" unless load_file("/usr/bin/timkays_aws") eq $timkays_aws;
+	    chmod 0555, "/usr/bin/timkays_aws";
 	    chdir "/usr/bin";
 	}
     }
@@ -1144,7 +1145,7 @@ if ($install)
 
 if ($link)
 {
-    die "Usage: .../aws --link[=short|long] [-bare]\n" if $link && @argv;
+    die "Usage: .../timkays_aws --link[=short|long] [-bare]\n" if $link && @argv;
 
     make_links($0);
 }
@@ -1156,14 +1157,14 @@ sub make_links
     #
     # Create symlinks to this program named for all available
     # commands.  Then the script can be invoked as "s3mkdir foo"
-    # rather than "aws mkdir foo".  (Run this command in /usr/bin
+    # rather than "timkays_aws mkdir foo".  (Run this command in /usr/bin
     # or /usr/local/bin.)
     #
-    # aws -link
+    # timkays_aws -link
     #	symlinks all command names (ec2-delete-group, ec2delgrp, ec2-describe-groups, ec2dgrp, etc.)
-    # aws -link=short
+    # timkays_aws -link=short
     #	symlinks only the short versions of command names (ec2delgrp, ec2dgrp, etc.)
-    # aws -link=long
+    # timkays_aws -link=long
     #	symlinks only the long versions of command names (ec2-delete-group, ec2-describe-groups, etc.)
     #
     # The -bare option creates symlinks without the ec2 and s3 prefixes
@@ -1196,7 +1197,7 @@ sub make_links
 if (!$cmd_data)
 {
     my $output = "$cmd: unknown command\n" if $cmd;
-    $output .= "Usage: aws ACTION [--help]\n\twhere ACTION is one of\n";
+    $output .= "Usage: timkays_aws ACTION [--help]\n\twhere ACTION is one of\n";
     my(%output);
     for (@cmd)
     {
@@ -1213,7 +1214,7 @@ if (!$cmd_data)
 	    $output .= "\t\t$one\n";
 	}
     }
-    $output .= "aws version: v$program_version  (ec2 $ec2_version, sqs $sqs_version, elb $elb_version, sdb $sdb_version)\n";
+    $output .= "timkays_aws version: v$program_version  (ec2 $ec2_version, sqs $sqs_version, elb $elb_version, sdb $sdb_version)\n";
     die $output;
 }
 
@@ -1223,7 +1224,7 @@ if (!$cmd_data)
 
     if ($h)
     {
-	my $help = "Usage: aws $cmd";
+	my $help = "Usage: timkays_aws $cmd";
 	for (@$param)
 	{
 	    my($aa, $key, $default) = @$_;
@@ -2250,12 +2251,12 @@ sub s3
     $name .= $file if $verb eq PUT && $name =~ /\/$/;
 
     # read from stdin when
-    #	aws put target
-    #	aws put target -
+    #	timkays_aws put target
+    #	timkays_aws put target -
     # but not
-    #	aws put target?acl
+    #	timkays_aws put target?acl
     # what about
-    #	aws put target?location
+    #	timkays_aws put target?location
 
     my($temp_fh);
 
